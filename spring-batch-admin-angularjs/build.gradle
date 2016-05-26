@@ -27,7 +27,11 @@ jar {
 repositories {
     mavenCentral()
     maven {
-        url 'https://repo.spring.io/libs-snapshot-local/'
+        credentials {
+            username DOWNLOAD_REPO_USERNAME
+            password DOWNLOAD_REPO_PASSWORD
+        }
+        url "https://repo.edorasware.com/edoras-repo"
     }
 }
 
@@ -39,6 +43,10 @@ dependencies {
     compile("org.springframework.batch:spring-batch-admin-manager:$springBatchAdminVersion") {
 		exclude group: 'org.slf4j', module:'slf4j-log4j12'
 	}
+
+    compile("postgresql:postgresql:9.2-1002.jdbc4")
+    compile("com.oracle:ojdbc7:12.1.0.2.0")
+
     testCompile("junit:junit")
 }
 

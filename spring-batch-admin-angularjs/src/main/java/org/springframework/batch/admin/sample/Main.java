@@ -16,10 +16,16 @@
 package org.springframework.batch.admin.sample;
 
 import org.springframework.batch.admin.annotation.EnableBatchAdmin;
+import org.springframework.batch.core.configuration.DuplicateJobException;
+import org.springframework.batch.core.configuration.JobLocator;
+import org.springframework.batch.core.configuration.support.MapJobRegistry;
+import org.springframework.batch.core.configuration.support.ReferenceJobFactory;
+import org.springframework.batch.core.job.SimpleJob;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 
 /**
  * <p>Spring Boot launching point for Spring Batch Admin.</p>
@@ -30,7 +36,20 @@ import org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration;
 @EnableBatchAdmin
 public class Main {
 
-	public static void main(String [] args) {
-		SpringApplication.run(Main.class, args);
-	}
+    private static final String CONTENT_PRE_PROCESSING_JOB_NAME = "content-pre-processing";
+
+    // we need to override the jobLocator and fetch the default content pre processing job such that
+    // we are able to see the job details in the web app. If we do not set it an error is thrown that the job
+    // cannot be found. This would be fixed if we would run this application in the same Spring context as edoras one
+    @Bean
+    public JobLocator jobLocator() throws DuplicateJobException {
+        SimpleJob contentPreProcessingJob = new SimpleJob(CONTENT_PRE_PROCESSING_JOB_NAME);
+        MapJobRegistry mapJobRegistry = new MapJobRegistry();
+        mapJobRegistry.register(new ReferenceJobFactory(contentPreProcessingJob));
+        return mapJobRegistry;
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
 }
